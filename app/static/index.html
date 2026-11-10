@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#101b28" />
+  <title>FlowLedger | Payment Infrastructure Lab</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="logo"><div class="logo-mark">F<span>↗</span></div><div><strong>flowledger</strong><small>PAYMENT INFRASTRUCTURE LAB</small></div></div>
+      <div class="sidebar-label">WORKSPACE</div>
+      <nav aria-label="Main navigation">
+        <a href="#overview" class="nav-link selected"><span class="nav-icon">◫</span> Overview</a>
+        <a href="#send" class="nav-link"><span class="nav-icon">⇄</span> Simulate payment</a>
+        <a href="#activity" class="nav-link"><span class="nav-icon">▤</span> Transactions</a><a href="#reviews" class="nav-link"><span class="nav-icon">⚑</span> Risk review</a><a href="#ledger" class="nav-link"><span class="nav-icon">≋</span> Ledger & events</a>
+        <a href="#rules" class="nav-link"><span class="nav-icon">◇</span> Risk rules</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="live-dot"></div><span>Local simulation</span>
+        <p>No real money. No external payment provider. Made for learning.</p>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="topline"><div class="breadcrumb">PROJECTS <span>/</span> FLOWLEDGER <span>/</span> OVERVIEW</div><div class="topline-right"><span class="status-pill"><span class="mini-dot"></span> DEMO MODE</span><a href="/docs" target="_blank" rel="noopener">API Docs ↗</a></div></div>
+      <section id="overview" class="hero">
+        <div><div class="eyebrow">PAYMENTS / RISK ANALYTICS</div><h1>Know every transaction.<br/><em>Trust every decision.</em></h1><p>Queue simulated payments, review flagged transactions and audit a double-entry ledger with reliable retries.</p></div>
+        <div class="hero-art" aria-hidden="true"><span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span><div class="hero-pulse">↗</div></div>
+      </section>
+      <section class="metrics" aria-label="Transaction summary">
+        <div class="metric"><div class="metric-label">TOTAL PAYMENTS <span>↗</span></div><strong id="metric-total">—</strong><div class="metric-foot">All simulated attempts</div></div>
+        <div class="metric"><div class="metric-label">APPROVED VOLUME <span>£</span></div><strong id="metric-volume">—</strong><div class="metric-foot">Only completed transfers</div></div>
+        <div class="metric"><div class="metric-label">FLAGGED PAYMENTS <span class="amber-dot">●</span></div><strong id="metric-flagged">—</strong><div class="metric-foot">Held by rules, not debited</div></div>
+        <div class="metric"><div class="metric-label">APPROVAL RATE <span>↗</span></div><strong id="metric-rate">—</strong><div class="metric-foot">Approved / all attempts</div></div>
+      </section>
+      <div class="content-grid">
+        <section id="send" class="panel send-panel">
+          <div class="panel-head"><div><div class="eyebrow">PAYMENT SANDBOX</div><h2>Queue a transaction</h2></div><span class="panel-tag">SAFE SIMULATION</span></div>
+          <p class="muted">Payments enter a durable queue before risk checks and any money movement. All accounts are fictional.</p>
+          <form id="payment-form">
+            <label for="sender">From account</label>
+            <select id="sender" required></select>
+            <div class="switch-direction" aria-hidden="true">↓</div>
+            <label for="recipient">To account</label>
+            <select id="recipient" required></select>
+            <div class="form-row"><div><label for="amount">Amount (GBP)</label><div class="input-with-prefix"><span>£</span><input id="amount" type="number" inputmode="decimal" min="0.01" max="50000" step="0.01" placeholder="150.00" value="150.00" required/></div></div><div><label for="note">Reference (optional)</label><input id="note" type="text" maxlength="120" placeholder="Invoice #104"/></div></div>
+            <button id="pay-button" class="primary-button" type="submit">Queue demo payment <span>↗</span></button>
+            <button id="retry-button" class="secondary-button" type="button" disabled>Retry last payment with same key <span>↺</span></button>
+          </form>
+          <div id="payment-result" class="payment-result" role="status" aria-live="polite" hidden></div>
+        </section>
+        <section class="panel analysis-panel">
+          <div class="panel-head"><div><div class="eyebrow">LIVE BREAKDOWN</div><h2>Decision outcomes</h2></div><span class="tiny-help" title="Based on locally simulated transactions">ⓘ</span></div>
+          <div class="donut-section"><div class="donut" id="donut" role="img" aria-label="Payment statuses"><div class="donut-hole"><strong id="donut-value">—</strong><span>attempts</span></div></div><div class="legend"><div><span><i class="legend-dot ok"></i> Approved</span><strong id="legend-approved">0</strong></div><div><span><i class="legend-dot warn"></i> Flagged</span><strong id="legend-flagged">0</strong></div><div><span><i class="legend-dot bad"></i> Declined</span><strong id="legend-declined">0</strong></div><div><span><i class="legend-dot waiting"></i> Pending</span><strong id="legend-pending">0</strong></div></div></div>
+          <div class="separating-line"></div>
+          <div class="accounts-title"><h3>Selected demo account</h3><span>GBP</span></div>
+          <div class="selected-account"><span id="selected-account-name">Select an account</span><strong id="selected-balance">—</strong></div><p class="muted tiny-note">Only the selected account’s fictional balance is shown. This local sandbox has no user authentication.</p>
+        </section>
+      </div>
+      <section id="activity" class="panel activity-panel"><div class="panel-head"><div><div class="eyebrow">AUDIT TRAIL</div><h2>Recent transactions</h2></div><button class="refresh-button" id="refresh-button">↻ Refresh</button></div>
+        <div class="table-scroll"><table><thead><tr><th>PAYMENT ID</th><th>TRANSFER</th><th>AMOUNT</th><th>RISK</th><th>STATUS</th><th>CREATED</th><th>DETAILS</th></tr></thead><tbody id="activity-body"><tr><td colspan="7" class="empty">Loading payments…</td></tr></tbody></table></div>
+      </section>
+
+      <section id="reviews" class="panel activity-panel extended-panel">
+        <div class="panel-head"><div><div class="eyebrow">ANALYST WORKBENCH</div><h2>Risk review queue</h2></div><span class="panel-tag">SIMULATED OPERATIONS</span></div>
+        <p class="muted">Flagged payments are held until reviewed. Approving one re-checks the sender's available demo funds. This is an unauthenticated local teaching interface.</p>
+        <div id="review-list" class="review-list"><p class="muted">Loading review queue…</p></div>
+      </section>
+      <section id="ledger" class="content-grid advanced-grid">
+        <div class="panel inspection-panel">
+          <div class="panel-head"><div><div class="eyebrow">ACCOUNTING INTEGRITY</div><h2>Double-entry inspection</h2></div></div>
+          <div id="reconcile-status" class="reconcile-status">Checking balances against ledger entries…</div>
+          <div id="inspection-list" class="inspection-list"><p class="muted">Select “Inspect” on a transaction to view its ledger entries and audit trail.</p></div>
+        </div>
+        <div class="panel inspection-panel">
+          <div class="panel-head"><div><div class="eyebrow">EVENT DELIVERY SIMULATION</div><h2>Recent payment events</h2></div></div>
+          <p class="muted tiny-note">A transactional outbox records events in SQLite. Delivery is simulated locally; no HTTP webhook is sent.</p>
+          <div id="event-list" class="event-list"><p class="muted">Loading events…</p></div>
+        </div>
+      </section>
+      <section id="rules" class="rule-section"><div class="section-intro"><div class="eyebrow">HOW IT WORKS</div><h2>Explainable, rule-based risk checks</h2><p>Each queued transfer earns risk points. At 60+, it is held for a manual demo review. This is not a trained fraud model.</p></div><div class="rules-grid"><article><span class="rule-symbol">↗</span><strong>Large amount</strong><p>Payments of £2,000 or more</p><div class="rule-footer">+65 POINTS</div></article><article><span class="rule-symbol">◎</span><strong>New recipient</strong><p>No previous approved transfer between the two accounts</p><div class="rule-footer">+15 POINTS</div></article><article><span class="rule-symbol">⚡</span><strong>High velocity</strong><p>Three other attempts by the sender within 60 seconds</p><div class="rule-footer">+65 POINTS</div></article></div></section>
+      <footer><span>FLOWLEDGER © PORTFOLIO DEMO</span><span>FastAPI · Double-entry ledger · SQLite · Background worker</span></footer>
+    </main>
+  </div>
+</body>
+</html>
